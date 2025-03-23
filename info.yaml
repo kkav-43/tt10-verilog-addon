@@ -2,7 +2,7 @@
 project:
   title:        "Pythagorean Theorem Chip"  # Project title
   author:       "KARTHIK"                 # Your name
-  discord:      "YourDiscord#1234"          # Your Discord username (optional)
+  discord:      ""          # Your Discord username (optional)
   description:  "Computes sqrt(x² + y²) using optimized logic" # One-line description
   language:     "Verilog"                   # HDL language used
   clock_hz:     10000000                    # Clock frequency in Hz (10 MHz)
