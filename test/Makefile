@@ -38,7 +38,7 @@ endif
 COMPILE_ARGS += -I$(SRC_DIR)
 
 # Include the testbench sources
-VERILOG_SOURCES += $(PWD)/testbench.v  # Update to match testbench file
+VERILOG_SOURCES += $(PWD)/tb_pythagoras.v # Update to match testbench file
 
 # Set the top-level module for simulation
 TOPLEVEL = tb_pythagoras  # Update to match testbench module name
