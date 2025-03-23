@@ -7,7 +7,7 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
-module tt_um_pythagoras (
+module tt_um_addon (
     input  wire [7:0] ui_in,    // 8-bit input: x
     input  wire [7:0] uio_in,   // 8-bit input: y
     output reg  [7:0] uo_out,   // 8-bit output: sqrt(x² + y²)
