@@ -11,7 +11,7 @@ project:
   tiles: "1x1"  # Valid values: 1x1, 1x2, 2x2, 3x2, etc.
 
   # Your top module name must start with "tt_um_".
-  top_module:  "tt_um_pythagoras"
+  top_module:  "tt_um_addon"
 
   # List your project's source files (must be in ./src)
   source_files:
