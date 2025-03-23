@@ -8,22 +8,21 @@ from cocotb.triggers import ClockCycles
 
 @cocotb.test()
 async def test_pythagoras(dut):
-    dut._log.info("Start")
+    dut._log.info("Starting Pythagoras Chip Test")
 
-    # Set the clock period to 10ns (100 MHz)
+    # Set up 100 MHz clock (10ns period)
     clock = Clock(dut.clk, 10, units="ns")
     cocotb.start_soon(clock.start())
 
-    # Reset
-    dut._log.info("Reset")
+    # Reset sequence
+    dut._log.info("Applying reset")
     dut.ena.value = 1
     dut.ui_in.value = 0
     dut.uio_in.value = 0
     dut.rst_n.value = 0
-    await ClockCycles(dut.clk, 10)
+    await ClockCycles(dut.clk, 20)  # Hold reset for 20 cycles
     dut.rst_n.value = 1
-
-    dut._log.info("Testing Pythagorean theorem implementation")
+    dut._log.info("Reset complete")
 
     # Test cases
     test_cases = [
@@ -33,11 +32,18 @@ async def test_pythagoras(dut):
         (12, 16, 20), # sqrt(12² + 16²) = 20
     ]
 
+    dut._log.info("Starting test cases...")
+    
     for x, y, expected in test_cases:
         dut.ui_in.value = x
         dut.uio_in.value = y
-        await ClockCycles(dut.clk, 1)
-        dut._log.info(f"Testing: x={x}, y={y}, Expected sqrt(x² + y²)={expected}, Got={int(dut.uo_out.value)}")
-        assert int(dut.uo_out.value) == expected, f"Test failed for x={x}, y={y}"
 
-    dut._log.info("All tests passed!")
+        await ClockCycles(dut.clk, 5)  # Allow computation time
+
+        actual = int(dut.uo_out.value)
+        dut._log.info(f"Testing: x={x}, y={y}, Expected sqrt(x² + y²)={expected}, Got={actual}")
+
+        assert actual == expected, \
+            f"Test failed for x={x}, y={y}: Expected {expected}, Got {actual}"
+
+    dut._log.info("✅ All tests passed successfully!")
