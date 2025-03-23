@@ -1,31 +1,32 @@
 `default_nettype none
 `timescale 1ns / 1ps
 
-/* Testbench for Pythagorean Theorem Chip (Tiny Tapeout) */
+/* Testbench for Pythagorean Theorem Calculator (Tiny Tapeout) */
 module tb_pythagoras ();
 
-  // Dump the signals to a VCD file for waveform analysis.
+  // Generate VCD file for waveform analysis
   initial begin
     $dumpfile("tb_pythagoras.vcd");
     $dumpvars(0, tb_pythagoras);
   end
 
-  // Wire up the inputs and outputs:
+  // Define input and output registers/wires
   reg clk;
   reg rst_n;
   reg ena;
-  reg [7:0] ui_in;  // X input
-  reg [7:0] uio_in; // Y input
-  wire [7:0] uo_out; // Hypotenuse output
+  reg [7:0] ui_in;   // Input: side a
+  reg [7:0] uio_in;  // Input: side b
+  wire [7:0] uo_out; // Output: hypotenuse
   wire [7:0] uio_out;
   wire [7:0] uio_oe;
 
+  // Power connections for Gate-Level Simulation
   `ifdef GL_TEST
   wire VPWR = 1'b1;
   wire VGND = 1'b0;
   `endif
 
-  // Generate Clock (100ns period -> 10MHz)
+  // Generate Clock (100ns period -> 10MHz frequency)
   always #50 clk = ~clk;
 
   // Instantiate Design Under Test (DUT)
@@ -34,8 +35,8 @@ module tb_pythagoras ();
       .VPWR(VPWR),
       .VGND(VGND),
       `endif
-      .ui_in  (ui_in),    // X input
-      .uio_in (uio_in),   // Y input
+      .ui_in  (ui_in),    // Side a
+      .uio_in (uio_in),   // Side b
       .uo_out (uo_out),   // Hypotenuse output
       .uio_out(uio_out),
       .uio_oe (uio_oe),
@@ -44,7 +45,7 @@ module tb_pythagoras ();
       .rst_n  (rst_n)
   );
 
-  // Initialize signals
+  // Initialize signals and test cases
   initial begin
     clk = 0;
     rst_n = 0;
@@ -52,10 +53,7 @@ module tb_pythagoras ();
     ui_in = 0;
     uio_in = 0;
 
-    // Initialize outputs (to avoid X/Z states in some simulators)
-    #1;
-    
-    // Apply Reset
+    // Apply Reset (Hold low for 5 clock cycles)
     repeat (5) @(posedge clk);
     rst_n = 1;  // Release reset
 
@@ -63,24 +61,29 @@ module tb_pythagoras ();
     repeat (5) @(posedge clk);
     ui_in = 8'd3; uio_in = 8'd4;  // sqrt(3² + 4²) = 5
     repeat (10) @(posedge clk);
-    $display("Time=%0t | x=%d, y=%d, sqrt(x² + y²)=%d", $time, ui_in, uio_in, uo_out);
+    $display("Time=%0t | a=%d, b=%d, sqrt(a² + b²)=%d", $time, ui_in, uio_in, uo_out);
 
     repeat (5) @(posedge clk);
     ui_in = 8'd6; uio_in = 8'd8;  // sqrt(6² + 8²) = 10
     repeat (10) @(posedge clk);
-    $display("Time=%0t | x=%d, y=%d, sqrt(x² + y²)=%d", $time, ui_in, uio_in, uo_out);
+    $display("Time=%0t | a=%d, b=%d, sqrt(a² + b²)=%d", $time, ui_in, uio_in, uo_out);
 
     repeat (5) @(posedge clk);
-    ui_in = 8'd10; uio_in = 8'd10; // sqrt(10² + 10²) = 14
+    ui_in = 8'd5; uio_in = 8'd12; // sqrt(5² + 12²) = 13
     repeat (10) @(posedge clk);
-    $display("Time=%0t | x=%d, y=%d, sqrt(x² + y²)=%d", $time, ui_in, uio_in, uo_out);
+    $display("Time=%0t | a=%d, b=%d, sqrt(a² + b²)=%d", $time, ui_in, uio_in, uo_out);
+
+    repeat (5) @(posedge clk);
+    ui_in = 8'd8; uio_in = 8'd15; // sqrt(8² + 15²) = 17
+    repeat (10) @(posedge clk);
+    $display("Time=%0t | a=%d, b=%d, sqrt(a² + b²)=%d", $time, ui_in, uio_in, uo_out);
 
     repeat (5) @(posedge clk);
     ui_in = 8'd12; uio_in = 8'd16; // sqrt(12² + 16²) = 20
     repeat (10) @(posedge clk);
-    $display("Time=%0t | x=%d, y=%d, sqrt(x² + y²)=%d", $time, ui_in, uio_in, uo_out);
+    $display("Time=%0t | a=%d, b=%d, sqrt(a² + b²)=%d", $time, ui_in, uio_in, uo_out);
 
-    // Finish simulation
+    // End simulation
     #50;
     $finish;
   end
