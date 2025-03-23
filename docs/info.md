@@ -13,9 +13,9 @@ You can also include images in this folder and reference them in the markdown. E
 
 This project implements a **Pythagorean theorem calculator** in hardware using Verilog. Given two 8-bit inputs, `x` and `y`, the design computes the hypotenuse using the formula:
 
-\[
-c = \sqrt{x^2 + y^2}
-\]
+
+c = Sqrt{x^2 + y^2}
+
 
 ### Features:
 - **8-bit inputs (`x`, `y`)** and **8-bit output (`c`)**.
