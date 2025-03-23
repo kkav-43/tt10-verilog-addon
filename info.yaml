@@ -15,7 +15,7 @@ project:
 
   # List your project's source files (must be in ./src)
   source_files:
-    - "src/tt_um_pythagoras.v"
+    - "src/tt_um_addon.v"
 
 # The pinout of your project. Leave unused pins blank.
 pinout:
