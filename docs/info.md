@@ -1,55 +1,66 @@
-<!---
-
-This file is used to generate your project datasheet. Please fill in the information below and delete any unused
-sections.
-
-You can also include images in this folder and reference them in the markdown. Each image must be less than
-512 kb in size, and the combined size of all images must be less than 1 MB.
--->
-
 # Pythagorean Theorem Calculator (Tiny Tapeout)
 
-## How It Works
+## Overview
+This project implements a **Pythagorean Theorem Calculator** in hardware using Verilog, designed for **Tiny Tapeout** constraints. Given two 8-bit inputs, `x` and `y`, the circuit computes the hypotenuse using the formula:
 
-This project implements a **Pythagorean theorem calculator** in hardware using Verilog. Given two 8-bit inputs, `x` and `y`, the design computes the hypotenuse using the formula:
+\[ c = \sqrt{x^2 + y^2} \]
 
-
-c = Sqrt{x^2 + y^2}
-
-
-### Features:
+### **Key Features:**
 - **8-bit inputs (`x`, `y`)** and **8-bit output (`c`)**.
-- **No multiplications (`*`)** – uses shift-and-add for squaring.
-- **Bitwise approximation for square root**.
-- **Designed for Tiny Tapeout constraints**.
+- **No multiplications (`*`)** – uses a shift-and-add method for squaring.
+- **Bitwise approximation for square root computation.**
+- **Optimized for Tiny Tapeout constraints.**
 
-### Inputs:
-- `ui_in[7:0]` → Input `x`
-- `uio_in[7:0]` → Input `y`
-- `clk` → Clock signal  
-- `rst_n` → Active-low reset  
+## **Block Diagram**
 
-### Processing:
-- Computes **x²** and **y²** using iterative addition.
-- Approximates **sqrt(x² + y²)** using a bitwise method.
+```plaintext
+    x (8-bit)        y (8-bit)
+        |               |
+    +---+---+       +---+---+
+    | Square |       | Square |
+    +---+---+       +---+---+
+        |               |
+        +------Sum------+
+                |
+           +----+----+
+           |  Sqrt   |
+           +----+----+
+                |
+              c (8-bit)
+```
 
-### Output:
-- `uo_out[7:0]` → Outputs computed **hypotenuse** (`c`).
+## **Inputs & Outputs**
+| Signal  | Direction | Description |
+|---------|-----------|-------------|
+| `ui_in[7:0]`  | Input  | 8-bit integer `x` |
+| `uio_in[7:0]` | Input  | 8-bit integer `y` |
+| `clk` | Input | Clock signal |
+| `rst_n` | Input | Active-low reset |
+| `ena` | Input | Enable signal |
+| `uo_out[7:0]` | Output | 8-bit computed `c` |
 
----
+## **Implementation Details**
+### **1. Squaring using Shift-and-Add**
+Instead of using multiplication, the circuit squares numbers using an iterative **shift-and-add** approach, which is Tiny Tapeout-friendly.
 
-## How to Test
+### **2. Sum of Squares**
+After squaring `x` and `y`, the sum is stored in a 17-bit register to prevent overflow.
 
-### 1. Run the Testbench
+### **3. Square Root Approximation**
+A **bitwise iterative method** is used to approximate the square root efficiently in hardware.
 
+## **Precision Handling**
+Since the output is **only 8 bits**, the circuit rounds down the square root, introducing minor precision loss for larger values.
+
+## **How to Test**
+### **1. Run the Testbench**
 #### **Prerequisites**
-- Install **Icarus Verilog** (`iverilog`) and **GTKWave**:
-  ```sh
-  sudo apt install iverilog gtkwave
-  ```
+Install **Icarus Verilog** (`iverilog`) and **GTKWave`:
+```sh
+sudo apt install iverilog gtkwave
+```
 
 #### **Compile and Simulate**
-Run the following command to compile and execute the testbench:
 ```sh
 iverilog -g2012 -Wall src/tt_um_pythagoras.sv test/testbench.sv -o sim.out
 vvp sim.out
@@ -65,19 +76,17 @@ vvp sim.out
 | 5         | 10       | 10       | 14             |
 | 6         | 15       | 20       | 25             |
 
-#### **View Waveform**
-To visualize the simulation waveforms, use:
+### **2. View Waveform**
+To visualize the simulation waveforms, run:
 ```sh
 gtkwave tb_pythagoras.vcd
 ```
 
----
-
-## External Hardware(OPTIONAL)
-
+## **Optional External Hardware**
 - **Seven-segment display** for output visualization.
 - **PMODs** for interactive input.
 - **Serial UART interface** for debugging.
 
 ---
+This project is a fully synthesized Tiny Tapeout-compatible module that efficiently calculates the hypotenuse using a resource-constrained approach. 🚀
 
