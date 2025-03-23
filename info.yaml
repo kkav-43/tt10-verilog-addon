@@ -1,7 +1,7 @@
 # Tiny Tapeout project information
 project:
   title:        "Pythagorean Theorem Chip"  # Project title
-  author:       "Your Name"                 # Your name
+  author:       "KARTHIK"                 # Your name
   discord:      "YourDiscord#1234"          # Your Discord username (optional)
   description:  "Computes sqrt(x² + y²) using optimized logic" # One-line description
   language:     "Verilog"                   # HDL language used
