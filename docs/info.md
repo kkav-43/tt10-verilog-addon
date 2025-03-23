@@ -73,7 +73,7 @@ gtkwave tb_pythagoras.vcd
 
 ---
 
-## External Hardware
+## External Hardware(OPTIONAL)
 
 - **Seven-segment display** for output visualization.
 - **PMODs** for interactive input.
