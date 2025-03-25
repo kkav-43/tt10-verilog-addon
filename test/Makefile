@@ -1,51 +1,66 @@
-# SPDX-FileCopyrightText: © 2024 Tiny Tapeout
-# SPDX-License-Identifier: Apache-2.0
+# Makefile
+# See https://docs.cocotb.org/en/stable/quickstart.html for more info
 
-# Default simulator (Icarus Verilog)
+# defaults
 SIM ?= icarus
 TOPLEVEL_LANG ?= verilog
-
-# Define project directories
 SRC_DIR = $(PWD)/../src
-TEST_DIR = $(PWD)
-
-# Update source files to match your folder structure
-PROJECT_SOURCES = tt_um_addon.v
+PROJECT_SOURCES = project.v
 
 ifneq ($(GATES),yes)
 
-# RTL Simulation:
+# RTL simulation:
 SIM_BUILD = sim_build/rtl
-VERILOG_SOURCES += $(SRC_DIR)/$(PROJECT_SOURCES)
+VERILOG_SOURCES += $(addprefix $(SRC_DIR)/,$(PROJECT_SOURCES))
 
 else
 
-# Gate-Level Simulation:
+# Gate level simulation:
 SIM_BUILD = sim_build/gl
-COMPILE_ARGS += -DGL_TEST
-COMPILE_ARGS += -DFUNCTIONAL
-COMPILE_ARGS += -DUSE_POWER_PINS
-COMPILE_ARGS += -DSIM
-COMPILE_ARGS += -DUNIT_DELAY=\#1
-
-# Sky130 PDK library paths (update PDK_ROOT if needed)
-PDK_ROOT ?= /path/to/sky130
+COMPILE_ARGS    += -DGL_TEST
+COMPILE_ARGS    += -DFUNCTIONAL
+COMPILE_ARGS    += -DUSE_POWER_PINS
+COMPILE_ARGS    += -DSIM
+COMPILE_ARGS    += -DUNIT_DELAY=\#1
 VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v
 VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v
 
-# Include synthesized gate-level netlist
-VERILOG_SOURCES += $(SRC_DIR)/gate_level_netlist.v
+# this gets copied in by the GDS action workflow
+VERILOG_SOURCES += $(PWD)/gate_level_netlist.v
 
 endif
 
-# Include testbench and other sources
-VERILOG_SOURCES += $(TEST_DIR)/tb_pythagoras.v
+# Allow sharing configuration between design and testbench via include:
+COMPILE_ARGS += -I$(SRC_DIR)
 
-# Set the top-level module for simulation
-TOPLEVEL = tb_pythagoras
+# Include the testbench sources:
+VERILOG_SOURCES += $(PWD)/tb.v
+TOPLEVEL = tt_um_rect_cyl
 
-# Python testbench script
-MODULE = test_pythagoras
+# MODULE is the basename of the Python test file
+MODULE = test
 
-# Include cocotb's make rules
+# Generate the VCD dump file for waveform analysis
+VCD_DUMP = test/tb.vcd
+
+# GTKWave configuration
+GTKW_FILE = test/tb.gtkw
+
+# Include cocotb's make rules to take care of the simulator setup
 include $(shell cocotb-config --makefiles)/Makefile.sim
+
+# Additional GTKWave setup
+.PHONY: view_waveform
+view_waveform:
+	gtkwave $(VCD_DUMP) $(GTKW_FILE)
+
+# Ensure the required source file exists
+.PHONY: check_sources
+check_sources:
+	@if [ ! -f $(SRC_DIR)/$(PROJECT_SOURCES) ]; then \
+		echo "Error: Source file $(SRC_DIR)/$(PROJECT_SOURCES) not found!"; \
+		exit 1; \
+	fi
+
+# Modify simulation rule to check sources first
+sim: check_sources
