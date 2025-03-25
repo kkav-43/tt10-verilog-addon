@@ -88,5 +88,5 @@ gtkwave tb_pythagoras.vcd
 - **Serial UART interface** for debugging.
 
 ---
-This project is a fully synthesized Tiny Tapeout-compatible module that efficiently calculates the hypotenuse using a resource-constrained approach. 🚀
+This project is a fully synthesized Tiny Tapeout-compatible module that efficiently calculates the hypotenuse using a resource-constrained approach. 
 
