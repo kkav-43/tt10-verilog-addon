@@ -14,41 +14,39 @@ module tt_um_addon (
     assign uio_out = 8'b0;
     assign uio_oe  = 8'b0;
 
-    reg [15:0] sum_squares;
-    reg [15:0] estimate;
-    reg [15:0] b;
     reg [7:0] sqrt_approx;
-    integer i;
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            uo_out       <= 8'd0;
-            sqrt_approx  <= 8'd0;
-            sum_squares  <= 16'd0;
-            estimate     <= 16'd0;
-            b            <= 16'd0;
+            uo_out      <= 8'd0;
+            sqrt_approx <= 8'd0;
         end else begin
-            // Initialize
-            sum_squares <= (ui_in * ui_in) + (uio_in * uio_in);
-            estimate    <= 0;
-            b           <= 16'h4000;  // Highest power of 4 under 16-bit
+            // Use internal temporary variables for calculation
+            reg [15:0] sum_squares;
+            reg [15:0] estimate;
+            reg [15:0] b;
+            integer i;
+
+            sum_squares = (ui_in * ui_in) + (uio_in * uio_in);
+            estimate    = 0;
+            b           = 16'h4000;  // Start from highest power of 4 below 16-bit range
 
             // Adjust b to be less than or equal to sum_squares
             for (i = 0; i < 15; i = i + 1) begin
                 if (b > sum_squares)
-                    b <= b >> 2;
+                    b = b >> 2;
             end
 
-            // Bitwise sqrt approximation
+            // Approximate square root using bitwise algorithm
             for (i = 0; i < 15; i = i + 1) begin
                 if (b != 0) begin
                     if (sum_squares >= (estimate + b)) begin
-                        sum_squares <= sum_squares - (estimate + b);
-                        estimate    <= (estimate >> 1) + b;
+                        sum_squares = sum_squares - (estimate + b);
+                        estimate    = (estimate >> 1) + b;
                     end else begin
-                        estimate <= estimate >> 1;
+                        estimate = estimate >> 1;
                     end
-                    b <= b >> 2;
+                    b = b >> 2;
                 end
             end
 
