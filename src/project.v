@@ -1,41 +1,62 @@
 `default_nettype none
 
-module tt_um_rect_cyl (
-    input  wire [7:0] ui_in,    // x input
-    input  wire [7:0] uio_in,   // y input
-    output wire [7:0] uio_out,  // theta output
-    output wire [7:0] uo_out,   // r output
-    output wire [7:0] uio_oe,   // IO enable (set to output mode)
-    input  wire       ena,      // Enable signal
-    input  wire       clk,      // Clock signal
-    input  wire       rst_n     // Active-low reset
+module tt_um_addon (
+    input  wire [7:0] ui_in,     // X input
+    input  wire [7:0] uio_in,    // Y input
+    output reg  [7:0] uo_out,    // Approximate square root output
+    output wire [7:0] uio_out,   // IOs: Output path
+    output wire [7:0] uio_oe,    // IOs: Enable path
+    input  wire       ena,       // Enable (ignored)
+    input  wire       clk,       // Clock signal
+    input  wire       rst_n      // Active-low reset
 );
 
-    wire [15:0] x2, y2, sum;
-    reg  [7:0] r_reg, theta_reg;
+    assign uio_out = 8'b0;
+    assign uio_oe  = 8'b0;
 
-    assign x2 = ui_in * ui_in;
-    assign y2 = uio_in * uio_in;
-    assign sum = x2 + y2;
+    reg [15:0] sum_squares;
+    reg [15:0] estimate;
+    reg [15:0] b;
+    reg [7:0] sqrt_approx;
+    integer i;
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            r_reg <= 8'd0;
-            theta_reg <= 8'd0;
-        end else if (ena) begin
-            // Approximate square root using bit shift method
-            r_reg <= (sum[15:8] + sum[14:7]) >> 1;  
+            uo_out       <= 8'd0;
+            sqrt_approx  <= 8'd0;
+            sum_squares  <= 16'd0;
+            estimate     <= 16'd0;
+            b            <= 16'd0;
+        end else begin
+            // Initialize
+            sum_squares <= (ui_in * ui_in) + (uio_in * uio_in);
+            estimate    <= 0;
+            b           <= 16'h4000;  // Highest power of 4 under 16-bit
 
-            // Approximate atan(y/x) using scaled division
-            if (uio_in == 0)
-                theta_reg <= 8'd90;  // Vertical line, angle = 90°
-            else
-                theta_reg <= (ui_in << 4) / uio_in; // Scale by 16 for better precision
+            // Adjust b to be less than or equal to sum_squares
+            for (i = 0; i < 15; i = i + 1) begin
+                if (b > sum_squares)
+                    b <= b >> 2;
+            end
+
+            // Bitwise sqrt approximation
+            for (i = 0; i < 15; i = i + 1) begin
+                if (b != 0) begin
+                    if (sum_squares >= (estimate + b)) begin
+                        sum_squares <= sum_squares - (estimate + b);
+                        estimate    <= (estimate >> 1) + b;
+                    end else begin
+                        estimate <= estimate >> 1;
+                    end
+                    b <= b >> 2;
+                end
+            end
+
+            sqrt_approx <= estimate[7:0];
+            uo_out      <= estimate[7:0];
         end
     end
 
-    assign uo_out = r_reg;      // r output (magnitude)
-    assign uio_out = theta_reg; // theta output (angle)
-    assign uio_oe = 8'b11111111; // Set all IOs to output mode
+    wire _unused = &{ena, 1'b0};
 
 endmodule
