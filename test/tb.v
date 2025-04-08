@@ -37,50 +37,6 @@ module tb;
       .rst_n   (rst_n)
   );
 
-  // Clock generator: 10ns period
-  always #5 clk = ~clk;
-
-  // VCD dump
-  initial begin
-    $dumpfile("tb.vcd");
-    $dumpvars(0, tb);
-  end
-
-  // Test stimulus
-  initial begin
-    // Init
-    clk    = 0;
-    rst_n  = 0;
-    ena    = 1;
-    ui_in  = 0;
-    uio_in = 0;
-
-    // Apply reset
-    #10 rst_n = 1;
-
-    // Wait for reset deassertion
-   
-
-    // Test Case 2: (6,8) → sqrt(100) ≈ 10
-    ui_in  = 8'd6;
-    uio_in = 8'd8;
-    #10;
-    $display("Output (should be ~10):  %d", uo_out);
-
-    // Test Case 3: (10,10) → sqrt(200) ≈ 14
-    ui_in  = 8'd10;
-    uio_in = 8'd10;
-    #10;
-    $display("Output (should be ~14):  %d", uo_out);
-
-    // Test Case 4: (5,10) → sqrt(125) ≈ 11
-    ui_in  = 8'd5;
-    uio_in = 8'd10;
-    #10;
-    $display("Output (should be ~11):  %d", uo_out);
-
-    #20;
-    $finish;
-  end
+ 
 
 endmodule
