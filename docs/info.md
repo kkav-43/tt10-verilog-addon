@@ -31,7 +31,7 @@ You can compare the output with the true magnitude calculated as sqrt(x² + y²)
 |---|---|-------------------|----------------|
 | 3 | 4 | 5                 | 5              | 
 | 5 | 12| 18                | 13             | 
-| 100|100| 149              | 141            | 
+| 10|10 | 149               | 14             | 
 | 0 | 0 | 0                 | 0              | 
 
 ## External hardware
